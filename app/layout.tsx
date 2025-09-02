@@ -3,11 +3,7 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Navbar from "@/components/layout/navbar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { Toaster } from "sonner"
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -41,9 +37,10 @@ export default function RootLayout({
         >
                 {/* <Header /> */}
                 <Navbar />
-              <main className="py-12">
+              <main className="min-h-screen">
                 {children}
               </main>
+              <Toaster />
         </ThemeProvider>
       </body>
     </html>

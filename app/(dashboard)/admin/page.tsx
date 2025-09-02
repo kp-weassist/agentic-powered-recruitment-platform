@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { InfoIcon } from "lucide-react";
 
-export default async function ProtectedPage() {
+export default async function AdminDashboard() {
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.getClaims();
@@ -13,7 +12,7 @@ export default async function ProtectedPage() {
 
   return (
    <>
-   <h1>Protected Page</h1>
+   <h1>Admin Dashboard</h1>
    </>
   );
 }

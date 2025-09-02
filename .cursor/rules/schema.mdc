@@ -1,0 +1,50 @@
+---
+description: Whenever there is change in schema or use of schema
+alwaysApply: false
+---
+Rule: Supabase SQL single source of truth
+
+When generating, editing, or discussing any Supabase SQL (tables, views, functions, triggers, RLS policies, seeds, migrations), you MUST:
+
+1) Treat `schemas.sql` at the repo root as the canonical source of truth.
+2) If proposing changes, update `schemas.sql` in the same session and keep it consistent.
+3) Prefer appending or editing `schemas.sql` rather than scattering SQL across files.
+4) For new features requiring DB changes, first write the SQL in `schemas.sql`, then reference those definitions in code and docs.
+5) If you create migration files or ad‑hoc SQL, ensure they are derived from and reconciled back into `schemas.sql`.
+6) Always cross‑reference existing table/column/function names from `schemas.sql` before inventing new ones.
+7) Include comments in `schemas.sql` for complex logic (functions/triggers/RLS) describing intent and assumptions.
+
+Operational preferences:
+- Keep consistent formatting and naming: snake_case for identifiers; timestamps as `timestamp with time zone`.
+- Place triggers and functions after table definitions.
+- Ensure foreign keys specify ON DELETE/UPDATE actions explicitly.
+- If unsure, ask to review `schemas.sql` before proceeding.
+
+Assistant behavior:
+- When asked to modify the database, open and edit `schemas.sql` directly.
+- When generating code that depends on schema, cite the exact definitions from `schemas.sql`.
+- If `schemas.sql` and code diverge, align code to `schemas.sql` and flag the discrepancy.
+
+Rule: Supabase SQL single source of truth
+
+When generating, editing, or discussing any Supabase SQL (tables, views, functions, triggers, RLS policies, seeds, migrations), you MUST:
+
+1) Treat `schemas.sql` at the repo root as the canonical source of truth.
+2) If proposing changes, update `schemas.sql` in the same session and keep it consistent.
+3) Prefer appending or editing `schemas.sql` rather than scattering SQL across files.
+4) For new features requiring DB changes, first write the SQL in `schemas.sql`, then reference those definitions in code and docs.
+5) If you create migration files or ad‑hoc SQL, ensure they are derived from and reconciled back into `schemas.sql`.
+6) Always cross‑reference existing table/column/function names from `schemas.sql` before inventing new ones.
+7) Include comments in `schemas.sql` for complex logic (functions/triggers/RLS) describing intent and assumptions.
+
+Operational preferences:
+- Keep consistent formatting and naming: snake_case for identifiers; timestamps as `timestamp with time zone`.
+- Place triggers and functions after table definitions.
+- Ensure foreign keys specify ON DELETE/UPDATE actions explicitly.
+- If unsure, ask to review `schemas.sql` before proceeding.
+
+Assistant behavior:
+- When asked to modify the database, open and edit `schemas.sql` directly.
+- When generating code that depends on schema, cite the exact definitions from `schemas.sql`.
+- If `schemas.sql` and code diverge, align code to `schemas.sql` and flag the discrepancy.
+

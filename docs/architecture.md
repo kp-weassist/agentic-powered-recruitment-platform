@@ -149,28 +149,16 @@ graph TB
 **TypeScript Interface:**
 ```typescript
 interface User {
-  id: string,
-  email: string,
-  last_sign_in: string,
-  full_name: string,
+  id: string;
+  email: string;
+  last_sign_in: string;
+  full_name: string;
   role: 'employer' | 'candidate' | 'admin';
+  is_onboarding_complete:boolean;
+  avatar_url:string;
   created_at: string;
   updated_at: string;
 }
-```
-Supabase users table 
-```sql
- table public.users (
-  id uuid not null,
-  email text null,
-  last_sign_in timestamp with time zone null default now(),
-  created_at timestamp with time zone null default now(),
-  full_name text null,
-  role text null default ''::text,
-  constraint users_pkey primary key (id),
-  constraint users_email_key unique (email),
-  constraint users_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE
-) TABLESPACE pg_default;
 ```
 
 **Relationships:**
@@ -195,6 +183,8 @@ Supabase users table
 interface EmployerProfile {
   id: string;
   user_id: string;
+  full_name:string;
+  avatar_url:string;
   company_name: string;
   company_size: string;
   industry: string;
@@ -272,6 +262,7 @@ interface CandidateProfile {
   id: string;
   user_id: string;
   full_name: string;
+  avatar_url:string;
   resume_url?: string;
   skills: string[];
   experience: {
@@ -286,6 +277,14 @@ interface CandidateProfile {
     degree: string;
     field: string;
     graduation_date: string;
+  }[];
+  project:{
+    project_name:string;
+    description:string:
+    project_link?:string;
+    github_link?:string;
+    start_date?: string;
+    end_date?: string;
   }[];
   location?: string;
   desired_salary?: number;

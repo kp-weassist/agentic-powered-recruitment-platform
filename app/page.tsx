@@ -71,7 +71,7 @@ export default function Home() {
             className="text-center"
           >
             {/* Badge */}
-            <Badge className="mb-8 bg-secondary/10 text-secondary border-secondary/20 px-4 py-1">
+            <Badge className="mb-8 bg-secondary/10 text-secondary border border-secondary/20 rounded-full px-4 py-1 shadow-[var(--shadow-2xs)]">
               <Sparkles className="mr-2 h-3 w-3" />
               AI-Powered Recruitment Platform
             </Badge>
@@ -92,13 +92,13 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/auth/sign-up">
-                <Button size="lg" className="group shadow-md hover:shadow-lg">
+                <Button size="lg" className="group rounded-xl border border-border/30 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]">
                   Start Free Trial
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
               <Link href="#demo">
-                <Button size="lg" variant="outline" className="shadow-sm hover:shadow-md">
+                <Button size="lg" variant="outline" className="rounded-xl border-2 shadow-[var(--shadow-2xs)] hover:shadow-[var(--shadow-sm)]">
                   Watch Demo
                 </Button>
               </Link>
@@ -198,8 +198,8 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6 h-full hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-border/50">
-                  <div className={`inline-flex p-3 rounded-lg ${feature.bgColor} mb-4`}>
+                <Card className="p-6 h-full rounded-2xl border-2 border-border/40 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all duration-150">
+                  <div className={`inline-flex p-3 rounded-xl ${feature.bgColor} mb-4 border border-border/30 shadow-[var(--shadow-2xs)]`}>
                     <feature.icon className={`h-6 w-6 ${feature.color}`} />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground mb-2">{feature.title}</h3>
@@ -276,7 +276,7 @@ export default function Home() {
                   </div>
                 )}
                 <div className="text-center">
-                  <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-[var(--shadow-2xs)]">
                     <span className="text-2xl font-bold">{step.step}</span>
                   </div>
                   <h3 className="mb-2 text-xl font-semibold text-foreground">{step.title}</h3>
@@ -333,7 +333,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6 h-full bg-card/50 backdrop-blur">
+                <Card className="p-6 h-full rounded-2xl bg-card/60 border-2 border-border/40 shadow-[var(--shadow-sm)]">
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <svg
@@ -365,7 +365,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-secondary p-12 text-center shadow-2xl"
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-secondary p-12 text-center border border-white/20 shadow-[var(--shadow-lg)]"
           >
             <div className="relative z-10">
               <h2 className="mb-4 text-3xl font-bold text-primary-foreground sm:text-4xl">
@@ -376,13 +376,13 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/auth/sign-up">
-                  <Button size="lg" variant="secondary" className="shadow-lg hover:shadow-xl">
+                  <Button size="lg" variant="secondary" className="rounded-xl border border-white/20 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]">
                     Get Started Free
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <Link href="/contact">
-                  <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+                  <Button size="lg" variant="outline" className="rounded-xl bg-white/10 text-white border-2 border-white/30 hover:bg-white/15 shadow-[var(--shadow-2xs)]">
                     Talk to Sales
                   </Button>
                 </Link>

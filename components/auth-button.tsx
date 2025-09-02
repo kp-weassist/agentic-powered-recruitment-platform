@@ -1,19 +1,40 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 import { LogoutButton } from "./logout-button";
 
-export async function AuthButton() {
-  const supabase = await createClient();
+export function AuthButton() {
+  const [email, setEmail] = useState<string | null>(null);
+  const router = useRouter();
 
-  // You can also use getUser() which will be slower.
-  const { data } = await supabase.auth.getClaims();
+  useEffect(() => {
+    const supabase = createClient();
 
-  const user = data?.claims;
+    // Fetch current user on mount
+    supabase.auth.getUser().then(({ data }) => {
+      setEmail(data.user?.email ?? null);
+    });
 
-  return user ? (
+    // Listen to auth changes to keep UI in sync
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setEmail(session?.user?.email ?? null);
+        router.refresh();
+      },
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [router]);
+
+  return email ? (
     <div className="flex items-center gap-4">
-      Hey, {user.email}!
+      Hey, {email}!
       <LogoutButton />
     </div>
   ) : (

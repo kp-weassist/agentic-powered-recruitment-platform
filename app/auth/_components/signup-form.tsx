@@ -19,13 +19,14 @@ import {
   EyeOff, 
   Loader2, 
   AlertCircle,
-  Github,
   Chrome,
   User,
   Building,
-  CheckCircle
+  CheckCircle,
+  Linkedin
 } from "lucide-react";
 import { toast } from "sonner";
+import { FaGoogle } from "react-icons/fa";
 
 export function SignupForm({
   className,
@@ -72,6 +73,7 @@ export function SignupForm({
         },
       });
       if (error) throw error;
+      router.refresh();
       router.push("/auth/sign-up-success");
       toast.success("Account created successfully");
     } catch (error: unknown) {
@@ -82,7 +84,7 @@ export function SignupForm({
     }
   };
 
-  const handleOAuthSignup = async (provider: 'github' | 'google') => {
+  const handleOAuthSignup = async (provider: 'github' | 'google' | 'linkedin') => {
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
@@ -145,7 +147,7 @@ export function SignupForm({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form onSubmit={handleSignup} className="space-y-4 p-4 rounded-2xl border-2 border-border/40 shadow-[var(--shadow-sm)] bg-card/30 backdrop-blur-sm">
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label htmlFor="fullName" className="text-sm font-medium">
@@ -160,7 +162,7 @@ export function SignupForm({
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="pl-9 h-11"
+                  className="pl-9 h-11 rounded-xl border-2"
                   disabled={isLoading}
                 />
               </div>
@@ -198,7 +200,7 @@ export function SignupForm({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-9 h-11"
+                className="pl-9 h-11 rounded-xl border-2"
                 disabled={isLoading}
               />
             </div>
@@ -216,7 +218,7 @@ export function SignupForm({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-9 pr-10 h-11"
+                className="pl-9 pr-10 h-11 rounded-xl border-2"
                 disabled={isLoading}
                 minLength={8}
               />
@@ -267,7 +269,7 @@ export function SignupForm({
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="pl-9 pr-10 h-11"
+                className="pl-9 pr-10 h-11 rounded-xl border-2"
                 disabled={isLoading}
                 minLength={8}
               />
@@ -301,7 +303,7 @@ export function SignupForm({
               checked={agreeToTerms}
               onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
               disabled={isLoading}
-              className="mt-1"
+              className="mt-1 rounded-md border-2"
             />
             <Label
               htmlFor="terms"
@@ -333,7 +335,7 @@ export function SignupForm({
 
           <Button 
             type="submit" 
-            className="w-full h-11" 
+            className="w-full h-11 rounded-xl border border-border/30 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]" 
             disabled={isLoading || !agreeToTerms}
           >
             {isLoading ? (
@@ -347,7 +349,7 @@ export function SignupForm({
           </Button>
         </form>
 
-        {/* <div className="relative my-6">
+        <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <Separator className="w-full" />
           </div>
@@ -358,26 +360,26 @@ export function SignupForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Button
+        <div className="grid grid-cols-1 gap-4">
+          {/* <Button
             variant="outline"
-            onClick={() => handleOAuthSignup('github')}
+            onClick={() => handleOAuthSignup('linkedin')}
             disabled={isLoading}
-            className="h-11"
+            className="h-11 rounded-xl border-2 shadow-[var(--shadow-2xs)]"
           >
-            <Github className="mr-2 h-4 w-4" />
-            GitHub
-          </Button>
+            <Linkedin className="mr-2 h-4 w-4" />
+            LinkedIn
+          </Button> */}
           <Button
             variant="outline"
             onClick={() => handleOAuthSignup('google')}
             disabled={isLoading}
-            className="h-11"
+            className="h-11 rounded-xl border-2 shadow-[var(--shadow-2xs)] hover:shadow-[var(--shadow-sm)]"
           >
-            <Chrome className="mr-2 h-4 w-4" />
+            <FaGoogle className="mr-2 h-4 w-4" />
             Google
           </Button>
-        </div> */}
+        </div>
 
         <div className="text-center text-sm text-muted-foreground mt-6">
           Already have an account?{" "}

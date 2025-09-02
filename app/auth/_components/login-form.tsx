@@ -22,6 +22,7 @@ import {
   Chrome
 } from "lucide-react";
 import { toast } from "sonner";
+import { FaGoogle } from "react-icons/fa";
 
 export function LoginForm({
   className,
@@ -47,7 +48,26 @@ export function LoginForm({
       });
       if (error) throw error;
       toast.success("Logged in successfully");
-      router.push("/");
+      // decide destination based on onboarding
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      let dest = "/";
+      if (uid) {
+        const { data: row } = await supabase
+          .from("users")
+          .select("role,is_onboarding_completed")
+          .eq("id", uid)
+          .maybeSingle();
+        if (!row || !row.is_onboarding_completed || !row.role) {
+          dest = "/onboarding";
+        } else if (row.role === "employer") {
+          dest = "/employer";
+        } else if (row.role === "candidate") {
+          dest = "/candidate";
+        }
+      }
+      router.refresh();
+      router.push(dest);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : "An error occurred");
       setError(error instanceof Error ? error.message : "An error occurred");
@@ -95,7 +115,7 @@ export function LoginForm({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4 p-4 rounded-2xl border-2 border-border/40 shadow-[var(--shadow-sm)] bg-card/30 backdrop-blur-sm">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">
               Email address
@@ -109,7 +129,7 @@ export function LoginForm({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-9 h-11"
+                className="pl-9 h-11 rounded-xl border-2"
                 disabled={isLoading}
               />
             </div>
@@ -135,7 +155,7 @@ export function LoginForm({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-9 pr-10 h-11"
+                className="pl-9 pr-10 h-11 rounded-xl border-2"
                 disabled={isLoading}
               />
               <button
@@ -162,7 +182,7 @@ export function LoginForm({
 
           <Button 
             type="submit" 
-            className="w-full h-11" 
+            className="w-full h-11 rounded-xl border border-border/30 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]" 
             disabled={isLoading}
           >
             {isLoading ? (
@@ -176,7 +196,7 @@ export function LoginForm({
           </Button>
         </form>
 
-        {/* <div className="relative my-6">
+        <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <Separator className="w-full" />
           </div>
@@ -187,26 +207,26 @@ export function LoginForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Button
+        <div className="grid grid-cols-1 gap-4">
+          {/* <Button
             variant="outline"
             onClick={() => handleOAuthLogin('github')}
             disabled={isLoading}
-            className="h-11"
+            className="h-11 rounded-xl border-2 shadow-[var(--shadow-2xs)]"
           >
             <Github className="mr-2 h-4 w-4" />
             GitHub
-          </Button>
+          </Button> */}
           <Button
             variant="outline"
             onClick={() => handleOAuthLogin('google')}
             disabled={isLoading}
-            className="h-11"
+            className="h-11 rounded-xl border-2 shadow-[var(--shadow-2xs)] hover:shadow-[var(--shadow-sm)]"
           >
-            <Chrome className="mr-2 h-4 w-4" />
+            <FaGoogle className="mr-2 h-4 w-4" />
             Google
           </Button>
-        </div> */}
+        </div>
 
         <div className="text-center text-sm text-muted-foreground mt-6">
           Don't have an account?{" "}

@@ -289,16 +289,19 @@ graph LR
 
 **States:** Default, Hover, Active, Selected, Disabled, Loading
 
-**Usage Guidelines:** Use elevated variant for primary actions. Interactive variant for clickable items. Always include 16px padding minimum.
+**Usage Guidelines:** Favor bold borders and modest shadows over deep elevation. Default structure `rounded-2xl border-2 shadow-[var(--shadow-sm)]` with hover to `--shadow-md`.
 
 #### Button Component
 **Purpose:** Trigger actions throughout the interface
 
-**Variants:** Primary, Secondary, Ghost, Destructive, AI-Powered (purple gradient)
+**Variants:** Primary, Secondary, Outline, Ghost, Destructive, AI-Powered (gradient)
 
 **States:** Default, Hover, Active, Loading, Disabled
 
-**Usage Guidelines:** Primary for main CTA per screen. AI-Powered for AI-assisted actions. Destructive requires confirmation.
+**Usage Guidelines:**
+- Use `rounded-xl` with light shadows (`shadow-[var(--shadow-sm)]`).
+- Prefer bordered outlines for secondary/outline (`border-2`) over heavy shadows.
+- Keep hover transitions subtle; avoid large elevation jumps.
 
 #### Form Input Component
 **Purpose:** Collect user input across forms
@@ -307,7 +310,10 @@ graph LR
 
 **States:** Default, Focus, Error, Success, Disabled, Loading
 
-**Usage Guidelines:** Always include labels. Show validation on blur. Provide helpful placeholder text. Support autofill.
+**Usage Guidelines:**
+- Always include labels. Show validation on blur.
+- Use `rounded-xl border-2` with high-contrast borders.
+- Provide helpful placeholder text and support autofill.
 
 #### Pipeline Card Component
 **Purpose:** Represent candidates in pipeline views
@@ -351,19 +357,23 @@ The theme uses HSL color values with CSS custom properties for dynamic theming s
 | Border | hsl(224 37% 16%) | hsl(222 35% 93%) | --border | Borders, dividers |
 | Card | hsl(212 37% 92%) | hsl(237 25% 18%) | --card | Card backgrounds |
 
-### Shadow System
+### Shape & Shadow System (Rounded Neo‑Brutalism)
 
-The design system features a unique neomorphic shadow style with solid offset shadows:
+We use a rounded neo‑brutalist aesthetic: large radii, flat surfaces, high-contrast borders, and restrained, crisp shadows.
+
+- Corner radius: `--radius: 0.75rem` used across buttons, inputs, cards; occasional `rounded-2xl` for emphasis.
+- Borders: Prefer 2px borders on cards and inputs for bold structure (`border-2 border-border/40`).
+- Shadows: Reduced intensity for cleaner look, primarily for layering not elevation.
 
 | Shadow Level | CSS Variable | Light Mode Value | Usage |
 |--------------|--------------|------------------|--------|
-| 2xs | --shadow-2xs | 2px 2px 0px 0px hsl(224 37% 16% / 0.5) | Subtle depth |
-| xs | --shadow-xs | 2px 2px 0px 0px hsl(224 37% 16% / 0.5) | Small elements |
-| sm | --shadow-sm | 2px 2px + blur | Buttons, inputs |
-| Default | --shadow | 2px 2px + blur | Cards, dropdowns |
-| md | --shadow-md | 2px 2px + 4px blur | Hover states |
-| lg | --shadow-lg | 2px 2px + 6px blur | Modals, popovers |
-| xl | --shadow-xl | 2px 2px + 10px blur | Large overlays |
+| 2xs | --shadow-2xs | 1px 1px 0px 0px hsl(224 37% 16% / 0.20) | Subtle outlines |
+| xs | --shadow-xs | 1px 1px 0px 0px hsl(224 37% 16% / 0.25) | Small accents |
+| sm | --shadow-sm | 1px 1px 0px 0px hsl(224 37% 16% / 0.35) | Buttons, chips |
+| Default | --shadow | 1px 1px 2px 0px hsl(224 37% 16% / 0.20) | Cards, sheets |
+| md | --shadow-md | 1px 2px 3px -1px hsl(224 37% 16% / 0.20) | Hover states |
+| lg | --shadow-lg | 2px 3px 6px -2px hsl(224 37% 16% / 0.20) | Prominent blocks |
+| xl | --shadow-xl | 2px 4px 8px -3px hsl(224 37% 16% / 0.20) | Large overlays |
 
 ### Typography
 

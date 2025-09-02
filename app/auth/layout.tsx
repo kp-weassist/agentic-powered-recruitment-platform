@@ -13,7 +13,7 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary to-secondary relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary to-secondary relative overflow-hidden rounded-r-3xl">
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <motion.div
@@ -46,7 +46,7 @@ export default function AuthLayout({
         <div className="relative z-10 flex flex-col justify-center p-12 text-white">
           <Link href="/" className="mb-12">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
+              <div className="p-2 bg-white/20 rounded-xl backdrop-blur border border-white/20 shadow-[var(--shadow-2xs)]">
                 <Brain className="h-8 w-8" />
               </div>
               <span className="text-2xl font-bold">WeAssist</span>
@@ -91,7 +91,7 @@ export default function AuthLayout({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="mt-12 p-6 bg-white/10 backdrop-blur rounded-xl border border-white/20"
+              className="mt-12 p-6 bg-white/10 backdrop-blur rounded-2xl border-2 border-white/25 shadow-[var(--shadow-sm)]"
             >
               <p className="text-white/90 italic mb-4">
                 "WeAssist transformed our hiring process. We're finding better candidates in a fraction of the time."
@@ -111,7 +111,7 @@ export default function AuthLayout({
         <div className="p-6">
           <div className="flex items-center justify-between">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="ghost" size="sm" className="gap-2 rounded-xl border border-border/30 shadow-[var(--shadow-2xs)]">
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
               </Button>

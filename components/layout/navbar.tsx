@@ -1,7 +1,7 @@
 import { hasEnvVars } from "@/lib/utils";
 import { EnvVarWarning } from "../env-var-warning";
 import { AuthButton } from "../auth-button";
-import { ThemeSwitcher } from "../theme-switcher";
+import { ThemeSwitcher } from "./theme-switcher";
 import Link from "next/link";
 
 export default function Navbar() {
