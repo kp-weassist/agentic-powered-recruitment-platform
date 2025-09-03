@@ -13,6 +13,7 @@ import { Plus, Trash, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 
 type ExperienceItem = { company: string; position: string; start_date: string; end_date?: string; description?: string };
 type EducationItem = { institution: string; degree: string; field: string; graduation_date: string };
@@ -129,12 +130,24 @@ export function CandidateForm({
       // ignore; will save on submit
     }
   };
-  const uploadResumeCb = async (url: string) => {
+  const uploadResumeCb = async (url: string, path?: string) => {
     setResumeUrl(url);
     try {
       const { data: auth } = await supabase.auth.getUser();
       const uid = auth.user?.id;
       if (!uid) return;
+      // store in resumes history table if we have a storage path
+      if (path) {
+        const fileName = path.split("/").pop() || path;
+        const { error: resumesErr } = await supabase.from("resumes").insert({
+          user_id: uid,
+          file_name: fileName,
+          file_url: url,
+          storage_path: path,
+        });
+        // ignoring duplicate/other insert errors here; onboarding continues
+        void resumesErr;
+      }
       let nameToUse = fullName;
       if (!nameToUse) {
         const { data: userRow } = await supabase.from("users").select("full_name").eq("id", uid).maybeSingle();
@@ -319,7 +332,7 @@ export function CandidateForm({
           </div>
           <div className="space-y-2">
             <Label>Resume</Label>
-            <FileUpload bucketId="resume" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onUploaded={(url) => void uploadResumeCb(url)} pathPrefix="resume" />
+            <FileUpload bucketId="resume" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onUploaded={(url, path) => void uploadResumeCb(url, path)} pathPrefix="resumes" />
             <div className="flex items-center justify-between gap-3 pt-2">
               <div className="flex items-center gap-2">
                 <Switch checked={useResumeAI} onCheckedChange={setUseResumeAI} />
@@ -337,7 +350,7 @@ export function CandidateForm({
         <div className="space-y-6">
           <div className="space-y-2">
             <Label>Skills (comma separated)</Label>
-            <Input value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="React, TypeScript, SQL" />
+            <Textarea value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="React, TypeScript, SQL" />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">

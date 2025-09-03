@@ -152,6 +152,42 @@ create policy candidate_write on public.candidate_profiles
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 ------------------------------------------------------------
+-- Resumes table (per-user previous resumes)
+------------------------------------------------------------
+create table if not exists public.resumes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.users (id) on delete cascade,
+  file_name text not null,
+  file_url text not null,
+  storage_path text not null,
+  ats_optimization_checker_results jsonb null,
+  resume_content text null,
+  uploaded_at timestamp with time zone not null default now()
+) TABLESPACE pg_default;
+
+-- index and uniqueness helpers
+create index if not exists resumes_user_id_idx on public.resumes (user_id);
+
+do $$ begin
+  if not exists (
+    select 1 from pg_indexes where schemaname = 'public' and indexname = 'resumes_storage_path_key'
+  ) then
+    alter table public.resumes add constraint resumes_storage_path_key unique (storage_path);
+  end if;
+end $$;
+
+-- Row Level Security for resumes
+alter table public.resumes enable row level security;
+
+drop policy if exists resumes_read on public.resumes;
+create policy resumes_read on public.resumes
+  for select using (auth.uid() = user_id);
+
+drop policy if exists resumes_write on public.resumes;
+create policy resumes_write on public.resumes
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+------------------------------------------------------------
 -- Storage: avatars, resume, company_logo buckets
 ------------------------------------------------------------
 -- Create avatars bucket (id = 'avatars')
