@@ -27,12 +27,14 @@ export async function GET(request: Request) {
           .maybeSingle()
         let destination = next
         if (userRow) {
-          if (!userRow.is_onboarding_completed || !userRow.role) {
+          if (!userRow.is_onboarding_completed || !userRow.role ) {
             destination = '/onboarding'
           } else if (userRow.role === 'employer') {
             destination = '/employer'
           } else if (userRow.role === 'candidate') {
             destination = '/candidate'
+          } else if (userRow.role === 'admin') {
+            destination = '/admin'
           }
         }
 

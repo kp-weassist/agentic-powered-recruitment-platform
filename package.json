@@ -7,6 +7,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@adobe/pdfservices-node-sdk": "latest",
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -39,6 +40,7 @@
     "@tiptap/pm": "^3.3.0",
     "@tiptap/react": "^3.3.0",
     "@tiptap/starter-kit": "^3.3.0",
+    "axios": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -49,6 +51,7 @@
     "lucide-react": "^0.511.0",
     "next": "latest",
     "next-themes": "^0.4.6",
+    "openai": "^5.18.1",
     "react": "^19.0.0",
     "react-day-picker": "^9.9.0",
     "react-dom": "^19.0.0",
@@ -58,13 +61,15 @@
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.0",
+    "unzipper": "latest",
     "vaul": "^1.1.2",
-    "zod": "^4.1.5"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/unzipper": "^0.10.11",
     "autoprefixer": "^10.4.20",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",

@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Plus, Trash, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 
 type ExperienceItem = { company: string; position: string; start_date: string; end_date?: string; description?: string };
 type EducationItem = { institution: string; degree: string; field: string; graduation_date: string };
@@ -44,6 +45,8 @@ export function CandidateForm({
   const [desiredSalary, setDesiredSalary] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState<0 | 1 | 2 | 3>(0);
+  const [useResumeAI, setUseResumeAI] = useState(false);
+  const [extracting, setExtracting] = useState(false);
 
   const stepMeta = [
     { key: "profile", title: "Profile" },
@@ -145,6 +148,52 @@ export function CandidateForm({
       if (error) throw error;
     } catch (e) {
       // ignore; will save on submit
+    }
+  };
+
+  const extractFromResume = async () => {
+    if (!resumeUrl) {
+      toast.error("Please upload your resume first");
+      return;
+    }
+    setExtracting(true);
+    try {
+      const parseRes = await fetch("/api/pdf-parser", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url: resumeUrl }),
+      });
+      const parseJson = (await parseRes.json()) as { text?: string; error?: string };
+      if (!parseRes.ok || !parseJson.text) {
+        throw new Error(parseJson.error || "Failed to parse PDF");
+      }
+
+      const extractRes = await fetch("/api/resume-extractor", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text: parseJson.text, resumeUrl }),
+      });
+      const extractJson = (await extractRes.json()) as { data?: any; error?: string };
+      if (!extractRes.ok || !extractJson.data) {
+        throw new Error(extractJson.error || "Failed to extract data");
+      }
+
+      const data = extractJson.data as any;
+      if (data.full_name) setFullName(data.full_name);
+      if (Array.isArray(data.skills)) setSkills(data.skills.join(", "));
+      if (Array.isArray(data.experience) && data.experience.length > 0) setExperience(data.experience as ExperienceItem[]);
+      if (Array.isArray(data.education) && data.education.length > 0) setEducation(data.education as EducationItem[]);
+      if (Array.isArray(data.projects) && data.projects.length > 0) setProjects(data.projects as ProjectItem[]);
+      if (typeof data.location === "string") setLocation(data.location);
+      if (typeof data.desired_salary === "number") setDesiredSalary(String(data.desired_salary));
+
+      toast.success("Form populated from resume");
+      if (currentStep < 1) setCurrentStep(1);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Something went wrong";
+      toast.error(message);
+    } finally {
+      setExtracting(false);
     }
   };
 
@@ -271,6 +320,15 @@ export function CandidateForm({
           <div className="space-y-2">
             <Label>Resume</Label>
             <FileUpload bucketId="resume" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onUploaded={(url) => void uploadResumeCb(url)} pathPrefix="resume" />
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <div className="flex items-center gap-2">
+                <Switch checked={useResumeAI} onCheckedChange={setUseResumeAI} />
+                <span className="text-sm text-muted-foreground">Use AI to fill from resume</span>
+              </div>
+              <Button type="button" size="sm" variant="outline" disabled={!useResumeAI || extracting || !resumeUrl} onClick={() => void extractFromResume()}>
+                {extracting ? "Extracting..." : "Extract from resume"}
+              </Button>
+            </div>
           </div>
         </div>
       )}

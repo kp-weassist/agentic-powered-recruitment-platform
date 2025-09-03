@@ -64,6 +64,8 @@ export function LoginForm({
           dest = "/employer";
         } else if (row.role === "candidate") {
           dest = "/candidate";
+        } else if (row.role === "admin") {
+          dest = "/admin";
         }
       }
       router.refresh();
