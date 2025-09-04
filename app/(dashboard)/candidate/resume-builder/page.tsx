@@ -193,14 +193,14 @@ export default function Page() {
                 </ScrollArea>
                 <div className="md:col-span-2 hidden md:block">
                   {selected ? (
-                    <AspectRatio ratio={3/4}>
+                    // <AspectRatio ratio={3/4}>
                       <iframe
                         src={`${selected.file_url}#toolbar=0`}
                         className="h-[30vh] w-full rounded-md border"
                         loading="lazy"
                         title="Selected resume preview"
                       />
-                    </AspectRatio>
+                    // </AspectRatio>
                   ) : (
                     <div className="h-[30vh] rounded-md border grid place-items-center text-sm text-muted-foreground">
                       Select a resume to preview

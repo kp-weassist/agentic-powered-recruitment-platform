@@ -12,10 +12,11 @@ import ModernPreview from "../templates/modern/preview";
 import ClassicPdf from "../templates/classic/pdf";
 import ModernPdf from "../templates/modern/pdf";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 type TemplateKey = "classic" | "modern";
 
-export default function ResumeBuilderPage() {
+function ResumeBuilder() {
   const supabase = createClient();
   const params = useSearchParams();
   const [template, setTemplate] = useState<TemplateKey>("classic");
@@ -188,3 +189,8 @@ export default function ResumeBuilderPage() {
   );
 }
 
+export default function ResumeBuilderPage() {
+  return <Suspense fallback={<div>Loading...</div>}>
+    <ResumeBuilder />
+  </Suspense>;
+}
