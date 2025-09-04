@@ -160,6 +160,7 @@ create table if not exists public.resumes (
   storage_path text not null,
   ats_optimization_checker_results jsonb null,
   resume_content text null,
+  resume_data jsonb null,
   uploaded_at timestamp with time zone not null default now()
 ) TABLESPACE pg_default;
 
