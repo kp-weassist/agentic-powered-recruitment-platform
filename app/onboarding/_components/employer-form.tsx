@@ -144,10 +144,10 @@ export function EmployerForm({
         <div className="space-y-2">
           <Label>Account avatar</Label>
           <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={userAvatarUrl || undefined} />
-              <AvatarFallback>{userFullName?.[0]?.toUpperCase() || "U"}</AvatarFallback>
-            </Avatar>
+                {/* <Avatar>
+                  <AvatarImage src={userAvatarUrl || undefined} />
+                  <AvatarFallback>{userFullName?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                </Avatar> */}
             <FileUpload bucketId="avatars" accept="image/*" onUploaded={(url) => void uploadAvatarCb(url)} pathPrefix="avatar" />
           </div>
         </div>
@@ -175,8 +175,14 @@ export function EmployerForm({
       </div>
       <div className="space-y-2">
         <Label>Company logo</Label>
+        {/* <div className="flex items-center gap-3"> */}
+        {/* <Avatar>
+              <AvatarImage src={logoUrl || undefined} />
+              <AvatarFallback>{companyName?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+            </Avatar> */}
         <FileUpload bucketId="company_logo" accept="image/*" onUploaded={(url) => void uploadLogoCb(url)} pathPrefix="logo" />
-        <p className="text-xs text-muted-foreground">Use a square image for best results.</p>
+        {/* </div> */}
+        {/* <p className="text-xs text-muted-foreground">Use a square image for best results.</p> */}
       </div>
       <div className="space-y-2">
         <Label>Description</Label>

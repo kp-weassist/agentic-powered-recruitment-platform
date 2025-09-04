@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useId } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2, Upload, FileUp, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
-import Image from "next/image";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function FileUpload({
   bucketId,
@@ -33,12 +33,16 @@ export function FileUpload({
   const [uploadedPublicUrl, setUploadedPublicUrl] = useState<string | null>(null);
   const [uploadedPath, setUploadedPath] = useState<string | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const inputId = useId();
+
+  const isImageMode = (accept || "").includes("image");
 
   // Persist last uploaded file info per user/bucket/pathPrefix
   const storageKeyFor = (uid: string) => `upload:${uid}:${bucketId}:${pathPrefix || ""}`;
 
-  const handleUpload = async () => {
-    if (!file) return;
+  const handleUpload = async (selectedFile?: File | null) => {
+    const f = selectedFile ?? file;
+    if (!f) return;
     setUploading(true);
     setError(null);
     try {
@@ -50,13 +54,13 @@ export function FileUpload({
         onError?.(msg);
         return;
       }
-      const safeName = file.name
+      const safeName = f.name
         .trim()
         .replace(/\s+/g, "-")
         .replace(/[^A-Za-z0-9_.-]/g, "-");
       const name = `${Date.now()}-${safeName}`;
       const path = `${uid}/${pathPrefix ? `${pathPrefix}/` : ""}${name}`;
-      const { error } = await supabase.storage.from(bucketId).upload(path, file, { upsert: false, contentType: file.type });
+      const { error } = await supabase.storage.from(bucketId).upload(path, f, { upsert: false, contentType: f.type });
       if (error) throw error;
       const { data: urlData } = await supabase.storage.from(bucketId).getPublicUrl(path);
       onUploaded(urlData.publicUrl, path);
@@ -113,6 +117,7 @@ export function FileUpload({
       setIsImage(f.type.startsWith("image/"));
       const url = URL.createObjectURL(f);
       setPreviewUrl(url);
+      if (isImageMode) void handleUpload(f);
     } else {
       setPreviewUrl(null);
       setIsImage(false);
@@ -166,38 +171,38 @@ export function FileUpload({
     setUploadedFileName(null);
   };
 
-  const isImageMode = (accept || "").includes("image");
-
   if (isImageMode) {
-    // Compact, one-line UI for images
+    // Compact, avatar-style UI for images (small footprint)
     return (
-      <div className="space-y-2">
+      <div className="space-y-1">
         {label ? <Label>{label}</Label> : null}
-        <div className="flex items-center gap-2 flex-wrap">
-          <input type="file" accept={accept} onChange={onInputChange} />
-          <Button type="button" size="sm" disabled={!file || uploading} onClick={() => void handleUpload()}>
-            {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-            Upload
-          </Button>
-          {file ? (
-            <div className="flex items-center gap-2">
-              <div className="text-xs text-muted-foreground truncate max-w-[200px]">{file.name}</div>
-              <button type="button" onClick={clearSelectedFile} className="p-1 rounded hover:bg-accent" aria-label="Remove selected">
-                <X className="h-4 w-4 text-muted-foreground" />
-              </button>
+        <div className="relative inline-block group">
+          <input id={inputId} type="file" accept={accept} onChange={onInputChange} className="hidden" />
+          <label htmlFor={inputId} className="block cursor-pointer">
+            <Avatar className="size-16">
+              {previewUrl || uploadedPublicUrl ? (
+                <AvatarImage src={(previewUrl || uploadedPublicUrl) as string} alt="Upload preview" />
+              ) : (
+                <AvatarFallback>
+                  <Upload className="h-4 w-4 text-muted-foreground" />
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin text-white" /> : <Upload className="h-4 w-4 text-white" />}
             </div>
+          </label>
+          {(file || uploadedPublicUrl) ? (
+            <button
+              type="button"
+              onClick={() => (file ? clearSelectedFile() : void clearUploadedInfo())}
+              className="absolute -bottom-1 -right-1 inline-flex items-center justify-center rounded-full border bg-background p-1 hover:bg-accent"
+              aria-label="Clear image"
+            >
+              <X className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
           ) : null}
         </div>
-        {!file && uploadedPublicUrl ? (
-          <div className="text-xs text-muted-foreground flex items-center gap-2">
-            <a className="text-primary underline underline-offset-4" href={uploadedPublicUrl} target="_blank" rel="noopener noreferrer">
-              Previously uploaded file
-            </a>
-            <button type="button" onClick={clearUploadedInfo} className="p-1 rounded hover:bg-accent" aria-label="Forget uploaded">
-              <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
-          </div>
-        ) : null}
         {error ? <div className="text-xs text-destructive">{error}</div> : null}
       </div>
     );

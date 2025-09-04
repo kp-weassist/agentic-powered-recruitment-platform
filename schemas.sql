@@ -35,9 +35,7 @@ begin
   if exists(select 1 from public.users where id = new.id) then
     update public.users
       set last_sign_in = now(),
-          email = new.email,
-          full_name = coalesce(new_full_name, full_name),
-          avatar_url = coalesce(new_avatar_url, avatar_url)
+          email = new.email
     where id = new.id;
   else
     -- Otherwise, insert new user

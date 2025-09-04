@@ -53,7 +53,7 @@ export function RoleStep({
   return (
     <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold">Hi, {fullName ? `, ${fullName}` : ""}!</h2>
+        <h2 className="text-2xl font-semibold">Hi {fullName ? `, ${fullName}` : ""}!</h2>
         <p className="text-sm text-muted-foreground">Choose how you'll use WeAssist. You can update details later.</p>
       </div>
 

@@ -322,10 +322,10 @@ export function CandidateForm({
             <div className="space-y-2">
               <Label>Avatar</Label>
               <div className="flex items-center gap-3">
-                <Avatar>
+                {/* <Avatar>
                   <AvatarImage src={avatarUrl || undefined} />
                   <AvatarFallback>{fullName?.[0]?.toUpperCase() || "U"}</AvatarFallback>
-                </Avatar>
+                </Avatar> */}
                 <FileUpload bucketId="avatars" accept="image/*" onUploaded={(url) => void uploadAvatarCb(url)} pathPrefix="avatar" />
               </div>
             </div>
