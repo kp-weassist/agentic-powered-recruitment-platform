@@ -1,18 +1,106 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Link } from "@react-pdf/renderer";
 import type { ResumeData } from "../../_components/resume-form";
 
 const styles = StyleSheet.create({
-  page: { padding: 32, fontSize: 11, color: "#0f172a" },
-  header: { borderBottomWidth: 1, borderBottomColor: "#e5e7eb", paddingBottom: 8 },
-  name: { fontSize: 22, fontWeight: 800 },
-  meta: { fontSize: 10, color: "#64748b" },
-  sectionTitle: { fontSize: 12, fontWeight: 700, color: "#ffffff", backgroundColor: "#1f2937", paddingVertical: 4, paddingHorizontal: 8, alignSelf: "flex-start", marginTop: 12, borderRadius: 4 },
-  row: { flexDirection: "row", gap: 16, marginTop: 8 },
-  col2: { flex: 2 },
-  col1: { flex: 1 },
-  paragraph: { marginTop: 6, lineHeight: 1.5, color: "#334155" },
-  small: { fontSize: 10, color: "#64748b" },
-  bullet: { marginTop: 4, lineHeight: 1.5, color: "#334155" },
+  page: { 
+    padding: 48,
+    fontSize: 11,
+    fontFamily: "Times-Roman",
+    color: "#000000"
+  },
+  header: {
+    textAlign: "center",
+    marginBottom: 12
+  },
+  name: { 
+    fontSize: 28,
+    fontWeight: 700,
+    fontFamily: "Times-Bold",
+    letterSpacing: 0.5,
+    marginBottom: 8
+  },
+  contactInfo: { 
+    fontSize: 10,
+    color: "#374151",
+    textAlign: "center"
+  },
+  section: {
+    marginTop: 18
+  },
+  sectionTitle: { 
+    fontSize: 13,
+    fontWeight: 700,
+    fontFamily: "Times-Bold",
+    borderBottomWidth: 1.5,
+    borderBottomColor: "#000000",
+    paddingBottom: 3,
+    marginBottom: 10,
+    textTransform: "capitalize"
+  },
+  entryContainer: {
+    marginBottom: 12
+  },
+  entryHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 3
+  },
+  entryLeft: {
+    flex: 1
+  },
+  entryRight: {
+    textAlign: "right",
+    marginLeft: 16
+  },
+  entryTitle: {
+    fontSize: 10,
+    fontFamily: "Times-Bold",
+    textTransform: "uppercase",
+    marginBottom: 2
+  },
+  entrySubtitle: {
+    fontSize: 10,
+    color: "#374151",
+    marginBottom: 2
+  },
+  entryLocation: {
+    fontSize: 10,
+    color: "#4B5563"
+  },
+  entryDate: {
+    fontSize: 10,
+    color: "#4B5563"
+  },
+  description: {
+    fontSize: 10,
+    color: "#374151",
+    lineHeight: 1.4,
+    marginTop: 6
+  },
+  bullet: {
+    fontSize: 10,
+    color: "#374151",
+    lineHeight: 1.4,
+    marginTop: 3,
+    marginLeft: 12
+  },
+  additionalRow: {
+    marginBottom: 6
+  },
+  additionalLabel: {
+    fontSize: 10,
+    fontFamily: "Times-Bold"
+  },
+  additionalValue: {
+    fontSize: 10,
+    color: "#374151"
+  },
+  projectLink: {
+    fontSize: 9,
+    color: "#2563eb",
+    textDecoration: "none",
+    marginRight: 8
+  }
 });
 
 function stripHtml(html?: string): string {
@@ -20,45 +108,59 @@ function stripHtml(html?: string): string {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-function renderInline(html: string): any[] {
-  // very small inline parser for <b>/<strong> and <i>/<em>, + <br>
-  let remaining = html.replace(/\n/g, " ").replace(/<br\s*\/>/gi, "\n");
-  const out: any[] = [];
-  const regex = /<(strong|b|em|i)>([\s\S]*?)<\/\1>/i;
-  while (true) {
-    const m = remaining.match(regex);
-    if (!m || m.index === undefined) break;
-    const before = remaining.slice(0, m.index);
-    if (stripHtml(before)) out.push(stripHtml(before));
-    const tag = m[1].toLowerCase();
-    const inner = stripHtml(m[2]);
-    const style = tag === "strong" || tag === "b" ? { fontWeight: 700 } : { fontStyle: "italic" as const };
-    out.push({ text: inner, style });
-    remaining = remaining.slice(m.index + m[0].length);
+function ContactInfoPdf({ data }: { data: ResumeData }) {
+  const parts = [];
+  
+  if (data.location) {
+    parts.push(data.location);
   }
-  if (stripHtml(remaining)) out.push(stripHtml(remaining));
-  return out;
+  
+  if (data.phone) {
+    parts.push(data.phone);
+  }
+  
+  if (data.email) {
+    parts.push(data.email);
+  }
+  
+  if (data.linkedin) {
+    const displayUrl = data.linkedin.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//, "");
+    parts.push(displayUrl);
+  }
+  
+  if (parts.length === 0) return null;
+  
+  return <Text style={styles.contactInfo}>{parts.join(" • ")}</Text>;
 }
 
-function RichParagraph({ html }: { html: string }) {
-  const runs = renderInline(html);
-  return (
-    <Text style={styles.paragraph}>
-      {runs.map((r, i) => (typeof r === "string" ? <Text key={i}>{r}</Text> : <Text key={i} style={r.style}>{r.text}</Text>))}
-    </Text>
-  );
-}
-
-function RichList({ html }: { html: string }) {
-  const items = Array.from(html.matchAll(/<li[\s\S]*?>([\s\S]*?)<\/li>/gi)).map((m) => m[1]);
-  if (items.length === 0) return <RichParagraph html={html} />;
-  return (
-    <View style={{ marginTop: 4 }}>
-      {items.map((it, idx) => (
-        <Text key={idx} style={styles.bullet}>• {stripHtml(it)}</Text>
-      ))}
-    </View>
-  );
+function RenderBulletPoints({ html }: { html: string }) {
+  const items = Array.from(html.matchAll(/<li[\s\S]*?>([\s\S]*?)<\/li>/gi)).map((m) => stripHtml(m[1]));
+  
+  if (items.length > 0) {
+    return (
+      <View>
+        {items.map((item, idx) => (
+          <Text key={idx} style={styles.bullet}>• {item}</Text>
+        ))}
+      </View>
+    );
+  }
+  
+  const plainText = stripHtml(html);
+  if (!plainText) return null;
+  
+  const lines = plainText.split(/[.!?]/).filter(Boolean);
+  if (lines.length > 1) {
+    return (
+      <View>
+        {lines.map((line, idx) => (
+          <Text key={idx} style={styles.bullet}>• {line.trim()}</Text>
+        ))}
+      </View>
+    );
+  }
+  
+  return <Text style={styles.description}>{plainText}</Text>;
 }
 
 export function ClassicPdf({ data }: { data: ResumeData }) {
@@ -67,90 +169,231 @@ export function ClassicPdf({ data }: { data: ResumeData }) {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  const languagesArr = data.languages
+    ? data.languages
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+  const certificationsArr = data.certifications
+    ? data.certifications
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.name}>{data.fullName || "Your Name"}</Text>
-          <Text style={styles.meta}>{data.location || ""}</Text>
+          {data.fullName && <Text style={styles.name}>{data.fullName}</Text>}
+          <ContactInfoPdf data={data} />
         </View>
 
+        {/* Summary Section */}
         {stripHtml(data.summary) && (
-          <View>
-            <Text style={styles.sectionTitle}>Professional Summary</Text>
-            <RichParagraph html={data.summary} />
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Summary</Text>
+            <RenderBulletPoints html={data.summary || ""} />
           </View>
         )}
 
-        <View style={styles.row}>
-          <View style={styles.col2}>
-            {data.experience.some((e) => e.company || e.position || e.start_date || e.end_date || stripHtml(e.description)) && (
-              <>
-                <Text style={styles.sectionTitle}>Experience</Text>
-                {data.experience
-                  .filter((exp) => exp.company || exp.position || exp.start_date || exp.end_date || stripHtml(exp.description))
-                  .map((exp, idx) => (
-                    <View key={idx} style={{ marginTop: 6 }}>
-                      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                        <Text style={{ fontWeight: 700 }}>{exp.position || ""}</Text>
-                        <Text style={styles.small}>
-                          {exp.start_date} {exp.end_date ? `- ${exp.end_date}` : exp.start_date ? "- Present" : ""}
+        {/* Education Section */}
+        {data.education.some((e) => e.institution || e.degree || e.field || e.graduation_date || e.gpa || stripHtml(e.coursework)) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Education</Text>
+            {data.education
+              .filter((ed) => ed.institution || ed.degree || ed.field || ed.graduation_date)
+              .map((ed, idx) => (
+                <View key={idx} style={styles.entryContainer}>
+                  <View style={styles.entryHeader}>
+                    <View style={styles.entryLeft}>
+                      {ed.institution && (
+                        <Text style={styles.entryTitle}>{ed.institution}</Text>
+                      )}
+                      {(ed.degree || ed.field) && (
+                        <Text style={styles.entrySubtitle}>
+                          {ed.degree}{ed.degree && ed.field ? " in " : ""}{ed.field}
                         </Text>
-                      </View>
-                      {exp.company ? <Text style={{ color: "#334155" }}>{exp.company}</Text> : null}
-                      {stripHtml(exp.description) ? <RichList html={exp.description || ""} /> : null}
+                      )}
+                      {ed.gpa && (
+                        <Text style={styles.entrySubtitle}>
+                          {ed.gpa_type === "percentage" ? `${ed.gpa}%` : `GPA: ${ed.gpa}${ed.gpa_scale ? ` / ${ed.gpa_scale}` : ""}`}
+                        </Text>
+                      )}
+                      {stripHtml(ed.coursework) && (
+                        <Text style={styles.entrySubtitle}>
+                          Relevant coursework: {stripHtml(ed.coursework)}
+                        </Text>
+                      )}
                     </View>
-                  ))}
-              </>
-            )}
-          </View>
-          <View style={styles.col1}>
-            {skillsArr.length > 0 && (
-              <>
-                <Text style={styles.sectionTitle}>Skills</Text>
-                <View style={{ marginTop: 6 }}>
-                  {skillsArr.map((skill, idx) => (
-                    <Text key={idx}>• {skill}</Text>
-                  ))}
+                    <View style={styles.entryRight}>
+                      {ed.location && (
+                        <Text style={styles.entryLocation}>{ed.location}</Text>
+                      )}
+                      {(ed.start_date || ed.graduation_date) && (
+                        <Text style={styles.entryDate}>
+                          {ed.start_date && ed.graduation_date ? `${ed.start_date} - ${ed.graduation_date}` : ed.graduation_date || ed.start_date}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
                 </View>
-              </>
-            )}
-            {data.education.some((e) => e.institution || e.degree || e.field || e.graduation_date) && (
-              <>
-                <Text style={styles.sectionTitle}>Education</Text>
-                <View style={{ marginTop: 6 }}>
-                  {data.education
-                    .filter((ed) => ed.institution || ed.degree || ed.field || ed.graduation_date)
-                    .map((ed, idx) => (
-                      <View key={idx} style={{ marginBottom: 6 }}>
-                        {ed.institution ? <Text style={{ fontWeight: 700 }}>{ed.institution}</Text> : null}
-                        {(ed.degree || ed.field) ? (
-                          <Text>
-                            {ed.degree}
-                            {ed.degree && ed.field ? " — " : ""}
-                            {ed.field}
-                          </Text>
-                        ) : null}
-                        {ed.graduation_date ? <Text style={styles.small}>Graduated: {ed.graduation_date}</Text> : null}
-                      </View>
-                    ))}
-                </View>
-              </>
-            )}
+              ))}
           </View>
-        </View>
+        )}
 
+        {/* Experience Section */}
+        {data.experience.some((e) => e.company || e.position || e.start_date || e.end_date || stripHtml(e.description)) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Experience</Text>
+            {data.experience
+              .filter((exp) => exp.company || exp.position || exp.start_date || exp.end_date || stripHtml(exp.description))
+              .map((exp, idx) => (
+                <View key={idx} style={styles.entryContainer}>
+                  <View style={styles.entryHeader}>
+                    <View style={styles.entryLeft}>
+                      {exp.position && (
+                        <Text style={styles.entryTitle}>{exp.position}</Text>
+                      )}
+                      {exp.company && (
+                        <Text style={styles.entrySubtitle}>{exp.company}</Text>
+                      )}
+                    </View>
+                    <View style={styles.entryRight}>
+                      {exp.location && (
+                        <Text style={styles.entryLocation}>{exp.location}</Text>
+                      )}
+                      {(exp.start_date || exp.end_date || exp.is_current) && (
+                        <Text style={styles.entryDate}>
+                          {exp.start_date}{exp.start_date && (exp.end_date || exp.is_current) ? " - " : ""}
+                          {exp.is_current ? "Present" : exp.end_date}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                  {stripHtml(exp.description) && (
+                    <RenderBulletPoints html={exp.description || ""} />
+                  )}
+                </View>
+              ))}
+          </View>
+        )}
+
+        {/* Projects Section */}
         {data.projects.some((p) => p.project_name || stripHtml(p.description)) && (
-          <View>
-            <Text style={styles.sectionTitle}>Projects</Text>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}> Projects</Text>
             {data.projects
               .filter((pr) => pr.project_name || stripHtml(pr.description))
               .map((pr, idx) => (
-                <View key={idx} style={{ marginTop: 6 }}>
-                  {pr.project_name ? <Text style={{ fontWeight: 700 }}>{pr.project_name}</Text> : null}
-                  {stripHtml(pr.description) ? <RichList html={pr.description || ""} /> : null}
+                <View key={idx} style={styles.entryContainer}>
+                  <View style={styles.entryHeader}>
+                    <View style={styles.entryLeft}>
+                      {pr.project_name && (
+                        <Text style={styles.entryTitle}>{pr.project_name}</Text>
+                      )}
+                      {(pr.project_link || pr.github_link) && (
+                        <View style={{ flexDirection: "row", marginTop: 2 }}>
+                          {pr.project_link && (
+                            <Link src={pr.project_link} style={styles.projectLink}>
+                              View Project
+                            </Link>
+                          )}
+                          {pr.github_link && (
+                            <Link src={pr.github_link} style={styles.projectLink}>
+                              GitHub
+                            </Link>
+                          )}
+                        </View>
+                      )}
+                    </View>
+                    {pr.date && (
+                      <View style={styles.entryRight}>
+                        <Text style={styles.entryDate}>{pr.date}</Text>
+                      </View>
+                    )}
+                  </View>
+                  {stripHtml(pr.description) && (
+                    <RenderBulletPoints html={pr.description || ""} />
+                  )}
                 </View>
               ))}
+          </View>
+        )}
+
+        {/* Activities Section */}
+        {data.activities && data.activities.length > 0 && data.activities.some((a) => a.name || stripHtml(a.description)) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Acheivements</Text>
+            {data.activities
+              .filter((act) => act.name || stripHtml(act.description))
+              .map((act, idx) => (
+                <View key={idx} style={styles.entryContainer}>
+                  <View style={styles.entryHeader}>
+                    <View style={styles.entryLeft}>
+                      {act.name && (
+                        <Text style={styles.entryTitle}>{act.name}</Text>
+                      )}
+                    </View>
+                    {act.date && (
+                      <View style={styles.entryRight}>
+                        <Text style={styles.entryDate}>{act.date}</Text>
+                      </View>
+                    )}
+                  </View>
+                  {stripHtml(act.description) && (
+                    <RenderBulletPoints html={act.description || ""} />
+                  )}
+                </View>
+              ))}
+          </View>
+        )}
+
+        {/* Additional Section */}
+        {(languagesArr.length > 0 || skillsArr.length > 0 || data.volunteer_experience || data.interests_hobbies || certificationsArr.length > 0) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Additional Information</Text>
+            <View>
+              {languagesArr.length > 0 && (
+                <View style={styles.additionalRow}>
+                  <Text>
+                    <Text style={styles.additionalLabel}>Language Skills: </Text>
+                    <Text style={styles.additionalValue}>{languagesArr.join(", ")}</Text>
+                  </Text>
+                </View>
+              )}
+              {skillsArr.length > 0 && (
+                <View style={styles.additionalRow}>
+                  <Text>
+                    <Text style={styles.additionalLabel}>Skills: </Text>
+                    <Text style={styles.additionalValue}>{skillsArr.join(", ")}</Text>
+                  </Text>
+                </View>
+              )}
+              {certificationsArr.length > 0 && (
+                <View style={styles.additionalRow}>
+                  <Text>
+                    <Text style={styles.additionalLabel}>Certifications: </Text>
+                    <Text style={styles.additionalValue}>{certificationsArr.join(", ")}</Text>
+                  </Text>
+                </View>
+              )}
+              {data.volunteer_experience && stripHtml(data.volunteer_experience) && (
+                <View style={styles.additionalRow}>
+                  <Text style={styles.additionalLabel}>Volunteer Experience</Text>
+                  <RenderBulletPoints html={data.volunteer_experience || ""} />
+                </View>
+              )}
+              {data.interests_hobbies && stripHtml(data.interests_hobbies) && (
+                <View style={styles.additionalRow}>
+                  <Text style={styles.additionalLabel}>Interests/Hobbies</Text>
+                  <RenderBulletPoints html={data.interests_hobbies || ""} />
+                </View>
+              )}
+            </View>
           </View>
         )}
       </Page>
@@ -159,5 +402,3 @@ export function ClassicPdf({ data }: { data: ResumeData }) {
 }
 
 export default ClassicPdf;
-
-

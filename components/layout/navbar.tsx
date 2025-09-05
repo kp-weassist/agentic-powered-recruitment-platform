@@ -25,6 +25,7 @@ type AppUserRow = {
 function DashboardLink() {
   const [userRow, setUserRow] = useState<AppUserRow | null>(null);
   const [isAuthed, setIsAuthed] = useState(false);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -41,12 +42,13 @@ function DashboardLink() {
 
       const { data: row } = await supabase
         .from("users")
-        .select("id,email,full_name,avatar_url,role")
+        .select("id,email,full_name,avatar_url,role,is_onboarding_completed")
         .eq("id", authedUser.id)
         .limit(1)
         .maybeSingle();
 
       if (isMounted) setUserRow(row as AppUserRow);
+      if (isMounted) setOnboardingCompleted(row?.is_onboarding_completed ?? false);
     };
 
     void load();
@@ -55,13 +57,15 @@ function DashboardLink() {
     };
   }, []);
 
+
   const destination = useMemo(() => {
     if (!userRow?.role) return "/";
+    if (!onboardingCompleted) return "/onboarding";
     if (userRow.role === "candidate") return "/candidate";
     if (userRow.role === "employer") return "/employer";
     if (userRow.role === "admin") return "/admin";
     return "/";
-  }, [userRow]);
+  }, [userRow, onboardingCompleted]);
 
   if (!isAuthed) return null;
 

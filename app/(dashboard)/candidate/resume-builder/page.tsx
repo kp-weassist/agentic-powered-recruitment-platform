@@ -171,7 +171,7 @@ export default function Page() {
             {resumes.length === 0 ? (
               <div className="text-sm text-muted-foreground">No previous resumes.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2  gap-4">
                 <ScrollArea className="h-[30vh] md:col-span-1 rounded-md border">
                   <div className="p-2 space-y-2">
                     {resumes.map((r) => {
@@ -191,16 +191,16 @@ export default function Page() {
                     })}
                   </div>
                 </ScrollArea>
-                <div className="md:col-span-2 hidden md:block">
+                <div className="md:col-span-1 hidden md:block">
                   {selected ? (
-                    // <AspectRatio ratio={3/4}>
+                    <AspectRatio ratio={3/4}>
                       <iframe
                         src={`${selected.file_url}#toolbar=0`}
                         className="h-[30vh] w-full rounded-md border"
                         loading="lazy"
                         title="Selected resume preview"
                       />
-                    // </AspectRatio>
+                    </AspectRatio>
                   ) : (
                     <div className="h-[30vh] rounded-md border grid place-items-center text-sm text-muted-foreground">
                       Select a resume to preview

@@ -15,9 +15,34 @@ import { Plus, Trash, Wand2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 
-type ExperienceItem = { company: string; position: string; start_date: string; end_date?: string; description?: string };
-type EducationItem = { institution: string; degree: string; field: string; graduation_date: string };
-type ProjectItem = { project_name: string; description?: string; project_link?: string; github_link?: string; start_date?: string; end_date?: string };
+type ExperienceItem = { 
+  company: string; 
+  position: string; 
+  location?: string;
+  start_date: string; 
+  end_date?: string; 
+  is_current?: boolean;
+  description?: string 
+};
+type EducationItem = { 
+  institution: string; 
+  degree: string; 
+  field: string; 
+  location?: string;
+  start_date?: string;
+  graduation_date: string;
+  gpa?: string;
+  gpa_scale?: string;
+  gpa_type?: 'gpa' | 'percentage';
+  coursework?: string;
+};
+type ProjectItem = { 
+  project_name: string; 
+  description?: string; 
+  date?: string;
+  project_link?: string; 
+  github_link?: string; 
+};
 
 export default function ProfilePage() {
   const supabase = useMemo(() => createClient(), []);
@@ -34,9 +59,9 @@ export default function ProfilePage() {
   const [skills, setSkills] = useState<string>("");
   const [location, setLocation] = useState("");
   const [desiredSalary, setDesiredSalary] = useState<string>("");
-  const [experience, setExperience] = useState<ExperienceItem[]>([{ company: "", position: "", start_date: "", description: "" }]);
-  const [education, setEducation] = useState<EducationItem[]>([{ institution: "", degree: "", field: "", graduation_date: "" }]);
-  const [projects, setProjects] = useState<ProjectItem[]>([{ project_name: "", description: "" }]);
+  const [experience, setExperience] = useState<ExperienceItem[]>([{ company: "", position: "", location: "", start_date: "", end_date: "", is_current: false, description: "" }]);
+  const [education, setEducation] = useState<EducationItem[]>([{ institution: "", degree: "", field: "", location: "", start_date: "", graduation_date: "", gpa: "", gpa_scale: "", gpa_type: "gpa", coursework: "" }]);
+  const [projects, setProjects] = useState<ProjectItem[]>([{ project_name: "", description: "", date: "", project_link: "", github_link: "" }]);
 
   const [extracting, setExtracting] = useState(false);
 
@@ -177,15 +202,15 @@ export default function ProfilePage() {
     }
   };
 
-  const addExperience = () => setExperience((arr) => [...arr, { company: "", position: "", start_date: "", description: "" }]);
+  const addExperience = () => setExperience((arr) => [...arr, { company: "", position: "", location: "", start_date: "", end_date: "", is_current: false, description: "" }]);
   const removeExperience = (idx: number) => setExperience((arr) => arr.filter((_, i) => i !== idx));
   const updateExperience = (idx: number, patch: Partial<ExperienceItem>) => setExperience((arr) => arr.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
 
-  const addEducation = () => setEducation((arr) => [...arr, { institution: "", degree: "", field: "", graduation_date: "" }]);
+  const addEducation = () => setEducation((arr) => [...arr, { institution: "", degree: "", field: "", location: "", start_date: "", graduation_date: "", gpa: "", gpa_scale: "", gpa_type: "gpa", coursework: "" }]);
   const removeEducation = (idx: number) => setEducation((arr) => arr.filter((_, i) => i !== idx));
   const updateEducation = (idx: number, patch: Partial<EducationItem>) => setEducation((arr) => arr.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
 
-  const addProject = () => setProjects((arr) => [...arr, { project_name: "", description: "" }]);
+  const addProject = () => setProjects((arr) => [...arr, { project_name: "", description: "", date: "", project_link: "", github_link: "" }]);
   const removeProject = (idx: number) => setProjects((arr) => arr.filter((_, i) => i !== idx));
   const updateProject = (idx: number, patch: Partial<ProjectItem>) => setProjects((arr) => arr.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
 
