@@ -39,6 +39,7 @@ export default function Page() {
           .from("resumes")
           .select("id,file_name,file_url,uploaded_at,resume_data")
           .eq("user_id", uid)
+          .eq("is_deleted", false)
           .order("uploaded_at", { ascending: false });
         if (error) throw error;
         setResumes(data ?? []);

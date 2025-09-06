@@ -40,6 +40,7 @@ export function CandidateSidebar() {
     { title: "Assessments", href: "/candidate/assessments", icon: Target, badge: "1" },
     { title: "Recommendations", href: "/candidate/recommendations", icon: Sparkles },
     { title: "ATS Optimization", href: "/candidate/ats-optimization-checker", icon: Sparkles },
+    {title:"Resume & JD Analyzer", href:"/candidate/resume-and-jd-analyzer", icon: Sparkles},
     { title: "Settings", href: "/candidate/settings", icon: Settings },
   ];
 

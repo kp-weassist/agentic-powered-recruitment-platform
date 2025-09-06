@@ -42,6 +42,8 @@ type ProjectItem = {
   date?: string;
   project_link?: string; 
   github_link?: string; 
+  start_date?: string;
+  end_date?: string;
 };
 
 export default function ProfilePage() {
@@ -416,8 +418,8 @@ export default function ProfilePage() {
                   <Input placeholder="GitHub link (optional)" value={pr.github_link || ""} onChange={(e) => updateProject(idx, { github_link: e.target.value })} />
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Input type="date" placeholder="Start date" value={pr.start_date || ""} onChange={(e) => updateProject(idx, { start_date: e.target.value })} />
-                  <Input type="date" placeholder="End date" value={pr.end_date || ""} onChange={(e) => updateProject(idx, { end_date: e.target.value })} />
+                  <Input type="date" placeholder="Start date" value={pr?.start_date || ""} onChange={(e) => updateProject(idx, { start_date: e.target.value })} />
+                  <Input type="date" placeholder="End date" value={pr?.end_date || ""} onChange={(e) => updateProject(idx, { end_date: e.target.value })} />
                 </div>
                 <RichTextEditor value={pr.description || ""} onChange={(html) => updateProject(idx, { description: html })} placeholder="Describe the project" />
                 <div className="flex justify-end">

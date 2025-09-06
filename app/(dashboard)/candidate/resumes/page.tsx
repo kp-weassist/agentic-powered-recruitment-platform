@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/upload/file-upload";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Dialog, DialogContent, DialogDescription, DialogFooter as DialogFooterC, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 type ResumeRow = {
@@ -23,6 +26,11 @@ export default function ResumesPage() {
   const [defaultUrl, setDefaultUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingDefaultId, setSavingDefaultId] = useState<string | null>(null);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameInput, setRenameInput] = useState("");
+  const [renamingResume, setRenamingResume] = useState<ResumeRow | null>(null);
+  const [renaming, setRenaming] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -40,6 +48,7 @@ export default function ResumesPage() {
           .from("resumes")
           .select("id,user_id,file_name,file_url,storage_path,uploaded_at")
           .eq("user_id", userId)
+          .eq("is_deleted", false)
           .order("uploaded_at", { ascending: false }),
         supabase
           .from("candidate_profiles")
@@ -65,6 +74,85 @@ export default function ResumesPage() {
     void fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const generateRandomString = (length = 10) => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+
+  const extractBaseAndExt = (name: string): { base: string; ext: string } => {
+    const lastDot = name.lastIndexOf(".");
+    if (lastDot === -1) return { base: name, ext: "" };
+    return { base: name.substring(0, lastDot), ext: name.substring(lastDot) };
+  };
+
+  const openRename = (resume: ResumeRow) => {
+    setRenamingResume(resume);
+    const { base } = extractBaseAndExt(resume.file_name);
+    setRenameInput(base);
+    setRenameOpen(true);
+  };
+
+  const submitRename = async () => {
+    if (!renamingResume) return;
+    const newBase = renameInput.trim();
+    if (!newBase) {
+      toast.error("Please enter a name");
+      return;
+    }
+    try {
+      setRenaming(true);
+      const { ext } = extractBaseAndExt(renamingResume.file_name);
+      const suffixed = `${newBase}-${generateRandomString(10)}${ext}`;
+      const { error } = await supabase
+        .from("resumes")
+        .update({ file_name: suffixed })
+        .eq("id", renamingResume.id);
+      if (error) throw error;
+      toast.success("Resume renamed");
+      setRenameOpen(false);
+      setRenaming(false);
+      setRenamingResume(null);
+      setRenameInput("");
+      await fetchData();
+    } catch (e: unknown) {
+      setRenaming(false);
+      const msg = e instanceof Error ? e.message : "Failed to rename";
+      toast.error(msg);
+    }
+  };
+
+  const deleteResume = async (resume: ResumeRow) => {
+    try {
+      setDeletingId(resume.id);
+      const { error } = await supabase
+        .from("resumes")
+        .update({ is_deleted: true })
+        .eq("id", resume.id);
+      if (error) throw error;
+
+      if (defaultUrl && resume.file_url === defaultUrl) {
+        const { data: auth } = await supabase.auth.getUser();
+        const userId = auth.user?.id;
+        if (userId) {
+          await supabase.from("candidate_profiles").update({ resume_url: null }).eq("user_id", userId);
+          setDefaultUrl(null);
+        }
+      }
+
+      toast.success("Resume deleted");
+      await fetchData();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to delete";
+      toast.error(msg);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleUploaded = async (publicUrl: string, path: string) => {
     try {
@@ -190,17 +278,42 @@ export default function ResumesPage() {
                       />
                     </AspectRatio>
                   </CardContent>
-                  <CardFooter className="justify-between">
+                  <CardFooter className="justify-between gap-2">
+                   
+                    <div className="flex items-center gap-2 flex-wrap">
                     <a href={r.file_url} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" size="sm">Open</Button>
                     </a>
-                    <Button
-                      size="sm"
-                      disabled={isDefault || savingDefaultId === r.id}
-                      onClick={() => void setAsDefault(r)}
-                    >
-                      {isDefault ? "Default" : savingDefaultId === r.id ? "Saving…" : "Make default"}
-                    </Button>
+                      <Button size="sm" variant="secondary" onClick={() => openRename(r)}>
+                        Rename
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="sm" variant="destructive" disabled={deletingId === r.id}>
+                            {deletingId === r.id ? "Deleting…" : "Delete"}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete resume?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will remove the resume from your list. You can re-upload later if needed.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => void deleteResume(r)}>Confirm</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      <Button
+                        size="sm"
+                        disabled={isDefault || savingDefaultId === r.id}
+                        onClick={() => void setAsDefault(r)}
+                      >
+                        {isDefault ? "Default" : savingDefaultId === r.id ? "Saving…" : "Make default"}
+                      </Button>
+                    </div>
                   </CardFooter>
                 </Card>
               );
@@ -208,6 +321,27 @@ export default function ResumesPage() {
           </div>
         )}
       </div>
+      <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename resume</DialogTitle>
+            <DialogDescription>
+              Enter a new name. A 10-character suffix will be appended automatically.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            value={renameInput}
+            onChange={(e) => setRenameInput(e.target.value)}
+            placeholder="New resume name"
+          />
+          <DialogFooterC>
+            <Button variant="outline" onClick={() => setRenameOpen(false)}>Cancel</Button>
+            <Button onClick={() => void submitRename()} disabled={renaming}>
+              {renaming ? "Renaming…" : "Save"}
+            </Button>
+          </DialogFooterC>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

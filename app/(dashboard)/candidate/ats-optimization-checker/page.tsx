@@ -79,6 +79,7 @@ export default function ATSOptimizationChecker() {
           .from("resumes")
           .select("id,user_id,file_name,file_url,storage_path,uploaded_at,resume_content,ats_optimization_checker_results")
           .eq("user_id", userId)
+          .eq("is_deleted", false)
           .order("uploaded_at", { ascending: false }),
         supabase
           .from("candidate_profiles")

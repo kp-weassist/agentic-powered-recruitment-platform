@@ -91,6 +91,7 @@ function ResumeBuilder() {
             .from("resumes")
             .select("id,file_url,resume_data")
             .eq("user_id", uid)
+            .eq("is_deleted", false)
             .eq("id", sourceResumeId)
             .maybeSingle();
           if (error) throw error;
@@ -134,6 +135,7 @@ function ResumeBuilder() {
           .from("resumes")
           .select("id,file_url,resume_data")
           .eq("user_id", uid)
+          .eq("is_deleted", false)
           .not("resume_data", "is", null)
           .order("uploaded_at", { ascending: false })
           .limit(1)
