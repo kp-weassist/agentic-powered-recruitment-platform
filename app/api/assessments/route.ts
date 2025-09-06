@@ -474,14 +474,18 @@ export async function PUT(req: NextRequest) {
 
     // Clear existing answers and insert fresh
     await supabase.from("assessment_answers").delete().eq("attempt_id", finalAttemptId);
-    const answerRows = answerResults.map((r) => ({
-      attempt_id: finalAttemptId,
-      question_id: r.question_id,
-      answer_data: (answers.find((a) => a.question_id === r.question_id) as any)?.answer ?? null,
-      is_correct: r.is_correct,
-      score: r.score,
-      ai_feedback: r.ai_feedback ?? null,
-    }));
+    const answerRows = answerResults.map((r) => {
+      const provided = (answers.find((a) => a.question_id === r.question_id) as any)?.answer;
+      const normalized = provided !== undefined && provided !== null ? provided : (r.type === "multiple_choice" ? [] : "");
+      return {
+        attempt_id: finalAttemptId,
+        question_id: r.question_id,
+        answer_data: normalized,
+        is_correct: r.is_correct,
+        score: r.score,
+        ai_feedback: r.ai_feedback ?? null,
+      };
+    });
     const { error: insAnsErr } = await supabase.from("assessment_answers").insert(answerRows);
     if (insAnsErr) throw insAnsErr;
 

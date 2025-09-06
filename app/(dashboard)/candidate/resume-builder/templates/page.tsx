@@ -31,8 +31,10 @@ import ClassicPdf from "../templates/classic/pdf";
 import ModernPdf from "../templates/modern/pdf";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import TraditionalPreview from "../templates/traditional/preview";
+import TraditionalPdf from "../templates/traditional/pdf";
 
-type TemplateKey = "classic" | "modern";
+type TemplateKey = "classic" | "modern" | "traditional";
 
 function ResumeBuilder() {
   const supabase = createClient();
@@ -63,8 +65,8 @@ function ResumeBuilder() {
   const [newFileName, setNewFileName] = useState("");
   const [pendingSaveAction, setPendingSaveAction] = useState<{ openAfter: boolean } | null>(null);
 
-  const Preview = useMemo(() => (template === "classic" ? ClassicPreview : ModernPreview), [template]);
-  const PdfDoc = useMemo(() => (template === "classic" ? ClassicPdf : ModernPdf), [template]);
+  const Preview = useMemo(() => (template === "classic" ? ClassicPreview : (template === "modern" ? ModernPreview : TraditionalPreview)), [template]);
+  const PdfDoc = useMemo(() => (template === "classic" ? ClassicPdf : (template === "modern" ? ModernPdf : TraditionalPdf)), [template]);
 
   useEffect(() => {
     const sourceResumeId = params.get("resumeId");
@@ -372,6 +374,7 @@ function ResumeBuilder() {
           <TabsList>
             <TabsTrigger value="classic">Classic</TabsTrigger>
             <TabsTrigger value="modern">Modern</TabsTrigger>
+            <TabsTrigger value="traditional">Traditional</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
